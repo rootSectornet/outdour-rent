@@ -1,11 +1,9 @@
 package handler_test
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -71,18 +69,6 @@ func setupRouter(authUC usecase.AuthUsecase) *gin.Engine {
 		auth.POST("/reset-password", h.ResetPassword)
 	}
 	return r
-}
-
-func performRequest(r *gin.Engine, method, path string, body interface{}) *httptest.ResponseRecorder {
-	var buf bytes.Buffer
-	if body != nil {
-		json.NewEncoder(&buf).Encode(body)
-	}
-	req := httptest.NewRequest(method, path, &buf)
-	req.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
 }
 
 func successAuthOutput() *usecase.AuthOutput {

@@ -78,25 +78,45 @@ type AvailabilityResponse struct {
 // StoreResponse
 
 type StoreResponse struct {
-	ID          string     `json:"id"`
-	OwnerID     string     `json:"owner_id"`
-	Name        string     `json:"name"`
-	Slug        string     `json:"slug"`
-	Description *string    `json:"description,omitempty"`
-	Phone       string     `json:"phone"`
-	Email       string     `json:"email"`
-	Address     string     `json:"address"`
-	City        string     `json:"city"`
-	Province    string     `json:"province"`
-	Latitude    *float64   `json:"latitude,omitempty"`
-	Longitude   *float64   `json:"longitude,omitempty"`
-	LogoURL     *string    `json:"logo_url,omitempty"`
-	BannerURL   *string    `json:"banner_url,omitempty"`
-	Status      string     `json:"status"`
-	VerifiedAt  *time.Time `json:"verified_at,omitempty"`
-	RatingAvg   float64    `json:"rating_avg"`
-	RatingCount uint       `json:"rating_count"`
-	CreatedAt   time.Time  `json:"created_at"`
+	ID          string                    `json:"id"`
+	OwnerID     string                    `json:"owner_id"`
+	Name        string                    `json:"name"`
+	Slug        string                    `json:"slug"`
+	Description *string                   `json:"description,omitempty"`
+	Phone       string                    `json:"phone"`
+	Email       string                    `json:"email"`
+	Address     string                    `json:"address"`
+	City        string                    `json:"city"`
+	Province    string                    `json:"province"`
+	PostalCode  *string                   `json:"postal_code,omitempty"`
+	Latitude    *float64                  `json:"latitude,omitempty"`
+	Longitude   *float64                  `json:"longitude,omitempty"`
+	LogoURL     *string                   `json:"logo_url,omitempty"`
+	BannerURL   *string                   `json:"banner_url,omitempty"`
+	Status      string                    `json:"status"`
+	VerifiedAt  *time.Time                `json:"verified_at,omitempty"`
+	RatingAvg   float64                   `json:"rating_avg"`
+	RatingCount uint                      `json:"rating_count"`
+	Photos      []StorePhotoResponse      `json:"photos,omitempty"`
+	Hours       []OperatingHourResponse   `json:"operating_hours,omitempty"`
+	CreatedAt   time.Time                 `json:"created_at"`
+}
+
+type StorePhotoResponse struct {
+	ID           string  `json:"id"`
+	PhotoURL     string  `json:"photo_url"`
+	ThumbnailURL *string `json:"thumbnail_url,omitempty"`
+	Caption      *string `json:"caption,omitempty"`
+	SortOrder    int     `json:"sort_order"`
+	IsPrimary    bool    `json:"is_primary"`
+}
+
+type OperatingHourResponse struct {
+	DayOfWeek uint8  `json:"day_of_week"`
+	DayName   string `json:"day_name"`
+	OpenTime  string `json:"open_time"`
+	CloseTime string `json:"close_time"`
+	IsClosed  bool   `json:"is_closed"`
 }
 
 type StoreMinimalResponse struct {
@@ -105,6 +125,7 @@ type StoreMinimalResponse struct {
 	Slug     string  `json:"slug"`
 	City     string  `json:"city"`
 	LogoURL  *string `json:"logo_url,omitempty"`
+	Status   string  `json:"status"`
 }
 
 // CategoryResponse

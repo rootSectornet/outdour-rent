@@ -122,30 +122,6 @@ func (r *storeRepository) Delete(ctx context.Context, id string, deletedBy strin
 		Delete(&entity.Store{}, "id = ?", id).Error
 }
 
-func (r *storeRepository) List(ctx context.Context, params *repository.StoreListParams) ([]entity.Store, *pagination.Meta, error) {
-	var stores []entity.Store
-	query := r.db.WithContext(ctx).Model(&entity.Store{})
-
-	if params.City != "" {
-		query = query.Where("city = ?", params.City)
-	}
-	if params.Status != "" {
-		query = query.Where("status = ?", params.Status)
-	}
-
-	var total int64
-	query.Count(&total)
-
-	err := query.
-		Offset(params.Offset()).
-		Limit(params.Limit()).
-		Order("created_at DESC").
-		Find(&stores).Error
-
-	meta := pagination.NewMeta(total, params.Page, params.PerPage)
-	return stores, meta, err
-}
-
 // --- Equipment Repository ---
 
 type equipmentRepository struct {

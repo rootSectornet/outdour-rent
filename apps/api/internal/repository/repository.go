@@ -46,8 +46,10 @@ type PasswordResetRepository interface {
 type StoreRepository interface {
 	Create(ctx context.Context, store *entity.Store) error
 	FindByID(ctx context.Context, id string) (*entity.Store, error)
+	FindByIDWithRelations(ctx context.Context, id string) (*entity.Store, error)
 	FindByOwnerID(ctx context.Context, ownerID string) (*entity.Store, error)
 	FindBySlug(ctx context.Context, slug string) (*entity.Store, error)
+	SlugExists(ctx context.Context, slug string) (bool, error)
 	Update(ctx context.Context, store *entity.Store) error
 	Delete(ctx context.Context, id string, deletedBy string) error
 	List(ctx context.Context, params *StoreListParams) ([]entity.Store, *pagination.Meta, error)
@@ -55,9 +57,28 @@ type StoreRepository interface {
 
 // StoreListParams defines filtering parameters for store listing.
 type StoreListParams struct {
-	City   string
-	Status string
+	City     string
+	Province string
+	Status   string
+	Search   string
+	OwnerID  string
 	pagination.Params
+}
+
+// StorePhotoRepository defines the interface for store photos.
+type StorePhotoRepository interface {
+	Create(ctx context.Context, photo *entity.StorePhoto) error
+	FindByStoreID(ctx context.Context, storeID string) ([]entity.StorePhoto, error)
+	Delete(ctx context.Context, id string) error
+	SetPrimary(ctx context.Context, storeID string, photoID string) error
+	UpdateSortOrder(ctx context.Context, id string, sortOrder int) error
+}
+
+// StoreOperatingHourRepository defines the interface for store hours.
+type StoreOperatingHourRepository interface {
+	Upsert(ctx context.Context, hours []entity.StoreOperatingHour) error
+	FindByStoreID(ctx context.Context, storeID string) ([]entity.StoreOperatingHour, error)
+	DeleteByStoreID(ctx context.Context, storeID string) error
 }
 
 // EquipmentRepository defines the interface for equipment data access.

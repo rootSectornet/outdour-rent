@@ -34,9 +34,11 @@ func Setup(r *gin.Engine, c *container.Container) {
 	v1 := r.Group("/api/v1")
 	{
 		setupAuthRoutes(v1, c)
+		setupStoreRoutes(v1, c)
 		setupEquipmentRoutes(v1, c)
 		setupRentalRoutes(v1, c)
 		setupPaymentRoutes(v1, c)
+		setupAdminRoutes(v1, c)
 	}
 }
 
@@ -108,5 +110,46 @@ func setupPaymentRoutes(rg *gin.RouterGroup, c *container.Container) {
 			authenticated.POST("", c.PaymentHandler.InitiatePayment)
 			authenticated.GET("/:id/status", c.PaymentHandler.CheckStatus)
 		}
+	}
+}
+
+func setupStoreRoutes(rg *gin.RouterGroup, c *container.Container) {
+	stores := rg.Group("/stores")
+	{
+		// Public routes
+		stores.GET("", c.StoreHandler.List)
+		stores.GET("/:id", c.StoreHandler.GetByID)
+		stores.GET("/slug/:slug", c.StoreHandler.GetBySlug)
+		stores.GET("/:id/operating-hours", c.StoreHandler.GetOperatingHours)
+
+		// Authenticated owner routes
+		ownerStores := stores.Group("")
+		ownerStores.Use(middleware.AuthMiddleware(c.Config.JWT.AccessSecret))
+		ownerStores.Use(middleware.RoleMiddleware("owner", "admin"))
+		{
+			ownerStores.POST("", c.StoreHandler.Create)
+			ownerStores.GET("/me", c.StoreHandler.GetMyStore)
+			ownerStores.PUT("/:id", c.StoreHandler.Update)
+
+			// Photos
+			ownerStores.POST("/:id/photos", c.StoreHandler.AddPhoto)
+			ownerStores.DELETE("/:id/photos/:photoId", c.StoreHandler.RemovePhoto)
+			ownerStores.PATCH("/:id/photos/:photoId/primary", c.StoreHandler.SetPrimaryPhoto)
+
+			// Operating Hours
+			ownerStores.PUT("/:id/operating-hours", c.StoreHandler.SetOperatingHours)
+		}
+	}
+}
+
+func setupAdminRoutes(rg *gin.RouterGroup, c *container.Container) {
+	admin := rg.Group("/admin")
+	admin.Use(middleware.AuthMiddleware(c.Config.JWT.AccessSecret))
+	admin.Use(middleware.RoleMiddleware("admin"))
+	{
+		// Store management
+		admin.PATCH("/stores/:id/approve", c.StoreHandler.ApproveStore)
+		admin.PATCH("/stores/:id/suspend", c.StoreHandler.SuspendStore)
+		admin.PATCH("/stores/:id/reactivate", c.StoreHandler.ReactivateStore)
 	}
 }
