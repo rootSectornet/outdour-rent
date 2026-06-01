@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rentoutdoor/api/internal/adapter/dto/request"
@@ -24,13 +25,15 @@ func NewEquipmentHandler(equipmentUC usecase.EquipmentUsecase) *EquipmentHandler
 
 // List godoc
 // @Summary List equipment
+// @Description List equipment with optional filters by store, category, status, and search.
 // @Tags Equipment
 // @Produce json
 // @Param store_id query string false "Store ID"
 // @Param category_id query string false "Category ID"
+// @Param status query string false "Filter by status" Enums(available, reserved, rented, maintenance, damaged, retired)
 // @Param search query string false "Search keyword"
-// @Param page query int false "Page number"
-// @Param per_page query int false "Items per page"
+// @Param page query int false "Page number" default(1)
+// @Param per_page query int false "Items per page" default(20)
 // @Success 200 {object} response.Response
 // @Router /equipment [get]
 func (h *EquipmentHandler) List(c *gin.Context) {
@@ -45,6 +48,7 @@ func (h *EquipmentHandler) List(c *gin.Context) {
 		CategoryID: req.CategoryID,
 		City:       req.City,
 		Search:     req.Search,
+		Status:     req.Status,
 		MinPrice:   req.MinPrice,
 		MaxPrice:   req.MaxPrice,
 		Params:     pagination.NewParams(req.Page, req.PerPage),
@@ -61,10 +65,12 @@ func (h *EquipmentHandler) List(c *gin.Context) {
 
 // GetByID godoc
 // @Summary Get equipment by ID
+// @Description Get detailed equipment information including photos, pricing, and category.
 // @Tags Equipment
 // @Produce json
 // @Param id path string true "Equipment ID"
 // @Success 200 {object} response.Response
+// @Failure 404 {object} response.ErrorResponse
 // @Router /equipment/{id} [get]
 func (h *EquipmentHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
@@ -80,12 +86,16 @@ func (h *EquipmentHandler) GetByID(c *gin.Context) {
 
 // Create godoc
 // @Summary Create new equipment
+// @Description Create a new equipment item for a store. Only store owners can create.
 // @Tags Equipment
 // @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param body body request.CreateEquipmentRequest true "Equipment payload"
 // @Success 201 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 401 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
 // @Router /equipment [post]
 func (h *EquipmentHandler) Create(c *gin.Context) {
 	var req request.CreateEquipmentRequest
@@ -112,6 +122,15 @@ func (h *EquipmentHandler) Create(c *gin.Context) {
 		CreatedBy:       userID,
 	}
 
+	if req.PurchaseDate != "" {
+		t, err := time.Parse("2006-01-02", req.PurchaseDate)
+		if err != nil {
+			response.Error(c, http.StatusBadRequest, "invalid purchase_date format, use YYYY-MM-DD")
+			return
+		}
+		input.PurchaseDate = &t
+	}
+
 	equipment, err := h.equipmentUC.Create(c.Request.Context(), input)
 	if err != nil {
 		response.HandleError(c, err)
@@ -123,6 +142,7 @@ func (h *EquipmentHandler) Create(c *gin.Context) {
 
 // Update godoc
 // @Summary Update equipment
+// @Description Update equipment details. Only the store owner can update.
 // @Tags Equipment
 // @Security BearerAuth
 // @Accept json
@@ -130,6 +150,9 @@ func (h *EquipmentHandler) Create(c *gin.Context) {
 // @Param id path string true "Equipment ID"
 // @Param body body request.UpdateEquipmentRequest true "Update payload"
 // @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Router /equipment/{id} [put]
 func (h *EquipmentHandler) Update(c *gin.Context) {
 	id := c.Param("id")
@@ -155,6 +178,14 @@ func (h *EquipmentHandler) Update(c *gin.Context) {
 		cond := entity.EquipmentCondition(*req.Condition)
 		input.Condition = &cond
 	}
+	if req.PurchaseDate != nil {
+		t, err := time.Parse("2006-01-02", *req.PurchaseDate)
+		if err != nil {
+			response.Error(c, http.StatusBadRequest, "invalid purchase_date format, use YYYY-MM-DD")
+			return
+		}
+		input.PurchaseDate = &t
+	}
 
 	equipment, err := h.equipmentUC.Update(c.Request.Context(), id, input, userID)
 	if err != nil {
@@ -167,10 +198,14 @@ func (h *EquipmentHandler) Update(c *gin.Context) {
 
 // Delete godoc
 // @Summary Delete equipment (soft)
+// @Description Soft delete equipment. Only the store owner can delete.
 // @Tags Equipment
 // @Security BearerAuth
+// @Produce json
 // @Param id path string true "Equipment ID"
 // @Success 200 {object} response.Response
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
 // @Router /equipment/{id} [delete]
 func (h *EquipmentHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
@@ -184,14 +219,50 @@ func (h *EquipmentHandler) Delete(c *gin.Context) {
 	response.Success(c, http.StatusOK, "equipment deleted", nil)
 }
 
+// ChangeStatus godoc
+// @Summary Change equipment status
+// @Description Change equipment status (available, reserved, rented, maintenance, damaged, retired). Validates allowed transitions.
+// @Tags Equipment
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Param id path string true "Equipment ID"
+// @Param body body request.ChangeEquipmentStatusRequest true "New status"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 403 {object} response.ErrorResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Router /equipment/{id}/status [patch]
+func (h *EquipmentHandler) ChangeStatus(c *gin.Context) {
+	id := c.Param("id")
+	var req request.ChangeEquipmentStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ValidationError(c, err)
+		return
+	}
+
+	userID := middleware.GetUserID(c)
+	status := entity.EquipmentStatus(req.Status)
+
+	equipment, err := h.equipmentUC.ChangeStatus(c.Request.Context(), id, status, userID)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "equipment status updated", equipment)
+}
+
 // CheckAvailability godoc
 // @Summary Check equipment availability for date range
+// @Description Check if equipment is available for rental in the given date range and quantity.
 // @Tags Equipment
 // @Accept json
 // @Produce json
 // @Param id path string true "Equipment ID"
 // @Param body body request.CheckAvailabilityRequest true "Availability check"
-// @Success 200 {object} response.Response
+// @Success 200 {object} response.Response{data=usecase.AvailabilityOutput}
+// @Failure 404 {object} response.ErrorResponse
 // @Router /equipment/{id}/availability [post]
 func (h *EquipmentHandler) CheckAvailability(c *gin.Context) {
 	id := c.Param("id")

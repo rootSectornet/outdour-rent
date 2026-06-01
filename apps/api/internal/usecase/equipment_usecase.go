@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	"github.com/rentoutdoor/api/internal/domain/entity"
 	"github.com/rentoutdoor/api/pkg/pagination"
@@ -14,36 +15,39 @@ type EquipmentUsecase interface {
 	Update(ctx context.Context, id string, input *UpdateEquipmentInput, updatedBy string) (*entity.Equipment, error)
 	Delete(ctx context.Context, id string, deletedBy string) error
 	List(ctx context.Context, input *ListEquipmentInput) ([]entity.Equipment, *pagination.Meta, error)
+	ChangeStatus(ctx context.Context, id string, status entity.EquipmentStatus, updatedBy string) (*entity.Equipment, error)
 	CheckAvailability(ctx context.Context, input *AvailabilityInput) (*AvailabilityOutput, error)
 }
 
 type CreateEquipmentInput struct {
-	StoreID        string
-	CategoryID     string
-	Name           string
-	Description    string
-	Brand          string
-	Specifications string
-	TotalStock     uint
-	Condition      entity.EquipmentCondition
-	WeightGrams    uint
-	MinRentalDays  uint
-	MaxRentalDays  uint
+	StoreID         string
+	CategoryID      string
+	Name            string
+	Description     string
+	Brand           string
+	Specifications  string
+	TotalStock      uint
+	Condition       entity.EquipmentCondition
+	PurchaseDate    *time.Time
+	WeightGrams     uint
+	MinRentalDays   uint
+	MaxRentalDays   uint
 	RequiresDeposit bool
-	DepositAmount  float64
-	CreatedBy      string
+	DepositAmount   float64
+	CreatedBy       string
 }
 
 type UpdateEquipmentInput struct {
-	Name           *string
-	Description    *string
-	Brand          *string
-	TotalStock     *uint
-	Condition      *entity.EquipmentCondition
-	MinRentalDays  *uint
-	MaxRentalDays  *uint
-	DepositAmount  *float64
-	IsActive       *bool
+	Name            *string
+	Description     *string
+	Brand           *string
+	TotalStock      *uint
+	Condition       *entity.EquipmentCondition
+	PurchaseDate    *time.Time
+	MinRentalDays   *uint
+	MaxRentalDays   *uint
+	DepositAmount   *float64
+	IsActive        *bool
 }
 
 type ListEquipmentInput struct {
@@ -51,6 +55,7 @@ type ListEquipmentInput struct {
 	CategoryID string
 	City       string
 	Search     string
+	Status     string
 	MinPrice   *float64
 	MaxPrice   *float64
 	pagination.Params
@@ -64,8 +69,9 @@ type AvailabilityInput struct {
 }
 
 type AvailabilityOutput struct {
-	Available     bool
-	TotalStock    uint
-	PeakUsage     uint
-	AvailableQty  uint
+	Available    bool   `json:"available"`
+	TotalStock   uint   `json:"total_stock"`
+	PeakUsage    uint   `json:"peak_usage"`
+	AvailableQty uint   `json:"available_qty"`
+	Status       string `json:"status"`
 }

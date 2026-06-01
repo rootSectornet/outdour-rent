@@ -97,6 +97,7 @@ type EquipmentListParams struct {
 	CategoryID string
 	City       string
 	Search     string
+	Status     string
 	MinPrice   *float64
 	MaxPrice   *float64
 	IsActive   *bool

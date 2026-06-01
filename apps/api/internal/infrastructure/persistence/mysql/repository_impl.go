@@ -191,6 +191,9 @@ func (r *equipmentRepository) List(ctx context.Context, params *repository.Equip
 	if params.Search != "" {
 		query = query.Where("name LIKE ? OR description LIKE ?", "%"+params.Search+"%", "%"+params.Search+"%")
 	}
+	if params.Status != "" {
+		query = query.Where("status = ?", params.Status)
+	}
 	if params.IsActive != nil {
 		query = query.Where("is_active = ?", *params.IsActive)
 	}

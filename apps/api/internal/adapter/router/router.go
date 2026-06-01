@@ -71,6 +71,7 @@ func setupEquipmentRoutes(rg *gin.RouterGroup, c *container.Container) {
 			ownerEquipment.POST("", c.EquipmentHandler.Create)
 			ownerEquipment.PUT("/:id", c.EquipmentHandler.Update)
 			ownerEquipment.DELETE("/:id", c.EquipmentHandler.Delete)
+			ownerEquipment.PATCH("/:id/status", c.EquipmentHandler.ChangeStatus)
 		}
 	}
 }

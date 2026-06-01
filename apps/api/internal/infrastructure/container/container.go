@@ -8,6 +8,7 @@ import (
 	"github.com/rentoutdoor/api/internal/repository"
 	"github.com/rentoutdoor/api/internal/usecase"
 	"github.com/rentoutdoor/api/internal/usecase/auth"
+	"github.com/rentoutdoor/api/internal/usecase/equipment"
 	"github.com/rentoutdoor/api/internal/usecase/store"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -111,8 +112,9 @@ func (c *Container) initUsecases() {
 
 	c.StoreUC = store.NewStoreUsecase(c.StoreRepo, c.StorePhotoRepo, c.StoreHoursRepo, c.UserRepo)
 
+	c.EquipmentUC = equipment.NewEquipmentUsecase(c.EquipmentRepo, c.CategoryRepo, c.ReservationRepo, c.StoreRepo, c.TxManager)
+
 	// TODO: Initialize remaining usecases when implementations are created
-	// c.EquipmentUC = equipment.NewEquipmentUsecase(c.EquipmentRepo, c.CategoryRepo, c.ReservationRepo, c.TxManager)
 	// c.RentalUC = rental.NewRentalUsecase(c.OrderRepo, c.OrderItemRepo, c.ReservationRepo, c.EquipmentRepo, c.TxManager)
 	// c.PaymentUC = payment.NewPaymentUsecase(c.PaymentRepo, c.OrderRepo, c.ReservationRepo, c.Config.Midtrans)
 	// c.ReviewUC = review.NewReviewUsecase(c.ReviewRepo, c.OrderRepo, c.EquipmentRepo)
