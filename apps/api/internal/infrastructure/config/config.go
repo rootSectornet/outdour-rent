@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/viper"
@@ -72,11 +74,8 @@ type GoogleConfig struct {
 
 // Load reads configuration from environment variables and .env file.
 func Load() (*Config, error) {
-	viper.SetConfigFile(".env")
+	readEnvFile()
 	viper.AutomaticEnv()
-
-	// Read .env file (optional, won't error if missing)
-	_ = viper.ReadInConfig()
 
 	cfg := &Config{
 		App: AppConfig{
@@ -142,6 +141,21 @@ func Load() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func readEnvFile() {
+	for _, candidate := range []string{
+		".env",
+		filepath.Join("apps", "api", ".env"),
+	} {
+		if _, err := os.Stat(candidate); err != nil {
+			continue
+		}
+
+		viper.SetConfigFile(candidate)
+		_ = viper.ReadInConfig()
+		return
+	}
 }
 
 func (c *Config) validate() error {

@@ -125,7 +125,7 @@ func (h *EquipmentHandler) Create(c *gin.Context) {
 	if req.PurchaseDate != "" {
 		t, err := time.Parse("2006-01-02", req.PurchaseDate)
 		if err != nil {
-			response.Error(c, http.StatusBadRequest, "invalid purchase_date format, use YYYY-MM-DD")
+			response.Error(c, http.StatusBadRequest, "invalid purchase_date format, use YYYY-MM-DD", err.Error())
 			return
 		}
 		input.PurchaseDate = &t
@@ -181,7 +181,7 @@ func (h *EquipmentHandler) Update(c *gin.Context) {
 	if req.PurchaseDate != nil {
 		t, err := time.Parse("2006-01-02", *req.PurchaseDate)
 		if err != nil {
-			response.Error(c, http.StatusBadRequest, "invalid purchase_date format, use YYYY-MM-DD")
+			response.Error(c, http.StatusBadRequest, "invalid purchase_date format, use YYYY-MM-DD", err.Error())
 			return
 		}
 		input.PurchaseDate = &t

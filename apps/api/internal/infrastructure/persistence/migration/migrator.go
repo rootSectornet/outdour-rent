@@ -1,9 +1,12 @@
 package migration
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"log"
+	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -18,9 +21,9 @@ type Migrator struct {
 
 // MigrationRecord tracks applied migrations.
 type MigrationRecord struct {
-	ID        uint   `gorm:"primaryKey;autoIncrement"`
-	Version   string `gorm:"type:varchar(100);not null;uniqueIndex"`
-	AppliedAt string `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP"`
+	ID        uint      `gorm:"primaryKey;autoIncrement"`
+	Version   string    `gorm:"type:varchar(100);not null;uniqueIndex"`
+	AppliedAt time.Time `gorm:"type:timestamp;not null;default:CURRENT_TIMESTAMP"`
 }
 
 func (MigrationRecord) TableName() string {
@@ -64,11 +67,13 @@ func (m *Migrator) MigrateUp() error {
 
 		log.Printf("[MIGRATION] Applying: %s", file)
 
-		if err := m.db.Exec(string(sql)).Error; err != nil {
+		if err := m.executeSQLScript(string(sql)); err != nil {
 			return fmt.Errorf("failed to apply migration %s: %w", file, err)
 		}
 
-		m.db.Create(&MigrationRecord{Version: version})
+		if err := m.db.Create(&MigrationRecord{Version: version}).Error; err != nil {
+			return fmt.Errorf("failed to record migration %s: %w", file, err)
+		}
 		log.Printf("[MIGRATION] Applied: %s", file)
 	}
 
@@ -94,12 +99,36 @@ func (m *Migrator) MigrateDown() error {
 
 	log.Printf("[MIGRATION] Rolling back: %s", downFile)
 
-	if err := m.db.Exec(string(sql)).Error; err != nil {
+	if err := m.executeSQLScript(string(sql)); err != nil {
 		return fmt.Errorf("failed to rollback migration %s: %w", downFile, err)
 	}
 
-	m.db.Where("version = ?", last.Version).Delete(&MigrationRecord{})
+	if err := m.db.Where("version = ?", last.Version).Delete(&MigrationRecord{}).Error; err != nil {
+		return fmt.Errorf("failed to delete migration record %s: %w", downFile, err)
+	}
 	log.Printf("[MIGRATION] Rolled back: %s", downFile)
+
+	return nil
+}
+
+func (m *Migrator) executeSQLScript(script string) error {
+	sqlDB, err := m.db.DB()
+	if err != nil {
+		return fmt.Errorf("failed to access sql.DB: %w", err)
+	}
+
+	ctx := context.Background()
+	conn, err := sqlDB.Conn(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to acquire database connection: %w", err)
+	}
+	defer conn.Close()
+
+	for _, statement := range splitSQLStatements(script) {
+		if _, err := conn.ExecContext(ctx, statement); err != nil {
+			return fmt.Errorf("statement %q failed: %w", previewStatement(statement), err)
+		}
+	}
 
 	return nil
 }
@@ -137,4 +166,135 @@ func extractVersion(filename string) string {
 		}
 	}
 	return filename
+}
+
+func splitSQLStatements(script string) []string {
+	var statements []string
+	var current strings.Builder
+
+	inSingleQuote := false
+	inDoubleQuote := false
+	inBacktick := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(script); i++ {
+		ch := script[i]
+		next := byte(0)
+		if i+1 < len(script) {
+			next = script[i+1]
+		}
+
+		if inLineComment {
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		}
+
+		if inBlockComment {
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		}
+
+		if !inSingleQuote && !inDoubleQuote && !inBacktick {
+			if isLineCommentStart(script, i) {
+				inLineComment = true
+				i++
+				continue
+			}
+			if ch == '/' && next == '*' {
+				inBlockComment = true
+				i++
+				continue
+			}
+			if ch == ';' {
+				statement := strings.TrimSpace(current.String())
+				if statement != "" {
+					statements = append(statements, statement)
+				}
+				current.Reset()
+				continue
+			}
+		}
+
+		switch ch {
+		case '\'':
+			if !inDoubleQuote && !inBacktick {
+				if inSingleQuote && next == '\'' {
+					current.WriteByte(ch)
+					current.WriteByte(next)
+					i++
+					continue
+				}
+				if !isEscaped(script, i) {
+					inSingleQuote = !inSingleQuote
+				}
+			}
+		case '"':
+			if !inSingleQuote && !inBacktick {
+				if inDoubleQuote && next == '"' {
+					current.WriteByte(ch)
+					current.WriteByte(next)
+					i++
+					continue
+				}
+				if !isEscaped(script, i) {
+					inDoubleQuote = !inDoubleQuote
+				}
+			}
+		case '`':
+			if !inSingleQuote && !inDoubleQuote {
+				inBacktick = !inBacktick
+			}
+		}
+
+		current.WriteByte(ch)
+	}
+
+	if statement := strings.TrimSpace(current.String()); statement != "" {
+		statements = append(statements, statement)
+	}
+
+	return statements
+}
+
+func isLineCommentStart(script string, idx int) bool {
+	if idx+2 >= len(script) || script[idx] != '-' || script[idx+1] != '-' {
+		return false
+	}
+
+	next := script[idx+2]
+	if next != ' ' && next != '\t' && next != '\r' && next != '\n' {
+		return false
+	}
+
+	if idx == 0 {
+		return true
+	}
+
+	prev := script[idx-1]
+	return prev == '\n' || prev == '\r' || prev == ' ' || prev == '\t'
+}
+
+func isEscaped(script string, idx int) bool {
+	backslashes := 0
+	for i := idx - 1; i >= 0 && script[i] == '\\'; i-- {
+		backslashes++
+	}
+	return backslashes%2 == 1
+}
+
+func previewStatement(statement string) string {
+	const maxLen = 80
+
+	normalized := strings.Join(strings.Fields(statement), " ")
+	if len(normalized) <= maxLen {
+		return normalized
+	}
+
+	return normalized[:maxLen] + "..."
 }
