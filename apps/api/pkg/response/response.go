@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/rentoutdoor/api/internal/usecase"
 )
 
 // Response is the standard API response envelope.
@@ -83,17 +84,17 @@ func ValidationError(c *gin.Context, err error) {
 // HandleError maps domain errors to HTTP status codes.
 func HandleError(c *gin.Context, err error) {
 	switch {
-	case errors.Is(err, ErrNotFound):
+	case errors.Is(err, usecase.ErrNotFound):
 		Error(c, http.StatusNotFound, "not_found", err.Error())
-	case errors.Is(err, ErrUnauthorized):
+	case errors.Is(err, usecase.ErrUnauthorized):
 		Error(c, http.StatusUnauthorized, "unauthorized", err.Error())
-	case errors.Is(err, ErrForbidden):
+	case errors.Is(err, usecase.ErrForbidden):
 		Error(c, http.StatusForbidden, "forbidden", err.Error())
-	case errors.Is(err, ErrConflict):
+	case errors.Is(err, usecase.ErrConflict):
 		Error(c, http.StatusConflict, "conflict", err.Error())
-	case errors.Is(err, ErrValidation):
+	case errors.Is(err, usecase.ErrValidation):
 		Error(c, http.StatusUnprocessableEntity, "validation_error", err.Error())
-	case errors.Is(err, ErrInsufficientStock):
+	case errors.Is(err, usecase.ErrInsufficientStock):
 		Error(c, http.StatusConflict, "insufficient_stock", err.Error())
 	default:
 		Error(c, http.StatusInternalServerError, "internal_error", "an unexpected error occurred")
