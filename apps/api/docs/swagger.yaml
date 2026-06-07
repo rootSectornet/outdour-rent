@@ -1,11 +1,2658 @@
 basePath: /api/v1
+definitions:
+  entity.DayOfWeek:
+    enum:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    format: int32
+    type: integer
+    x-enum-varnames:
+    - Monday
+    - Tuesday
+    - Wednesday
+    - Thursday
+    - Friday
+    - Saturday
+    - Sunday
+  entity.Deposit:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      created_by:
+        type: string
+      forfeit_reason:
+        type: string
+      forfeited_amount:
+        type: number
+      id:
+        type: string
+      order:
+        allOf:
+        - $ref: '#/definitions/entity.Order'
+        description: Relations
+      order_id:
+        type: string
+      payment:
+        $ref: '#/definitions/entity.Payment'
+      payment_id:
+        type: string
+      returned_amount:
+        type: number
+      returned_at:
+        type: string
+      status:
+        $ref: '#/definitions/entity.DepositStatus'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.DepositStatus:
+    enum:
+    - pending
+    - held
+    - returned
+    - forfeited
+    - partially_returned
+    type: string
+    x-enum-varnames:
+    - DepositStatusPending
+    - DepositStatusHeld
+    - DepositStatusReturned
+    - DepositStatusForfeited
+    - DepositStatusPartiallyReturned
+  entity.DocumentType:
+    enum:
+    - ktp
+    - npwp
+    - siu
+    - other
+    type: string
+    x-enum-varnames:
+    - DocumentTypeKTP
+    - DocumentTypeNPWP
+    - DocumentTypeSIU
+    - DocumentTypeOther
+  entity.Equipment:
+    properties:
+      brand:
+        type: string
+      category:
+        $ref: '#/definitions/entity.EquipmentCategory'
+      category_id:
+        type: string
+      condition:
+        $ref: '#/definitions/entity.EquipmentCondition'
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_by:
+        type: string
+      deposit_amount:
+        type: number
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      maintenance:
+        items:
+          $ref: '#/definitions/entity.EquipmentMaintenance'
+        type: array
+      max_rental_days:
+        type: integer
+      min_rental_days:
+        type: integer
+      name:
+        type: string
+      photos:
+        items:
+          $ref: '#/definitions/entity.EquipmentPhoto'
+        type: array
+      pricing:
+        items:
+          $ref: '#/definitions/entity.EquipmentPricing'
+        type: array
+      purchase_date:
+        type: string
+      rating_avg:
+        type: number
+      rating_count:
+        type: integer
+      rental_count:
+        type: integer
+      requires_deposit:
+        type: boolean
+      reservations:
+        items:
+          $ref: '#/definitions/entity.InventoryReservation'
+        type: array
+      slug:
+        type: string
+      specifications:
+        type: string
+      status:
+        $ref: '#/definitions/entity.EquipmentStatus'
+      store:
+        allOf:
+        - $ref: '#/definitions/entity.Store'
+        description: Relations
+      store_id:
+        type: string
+      total_stock:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      weight_grams:
+        type: integer
+    type: object
+  entity.EquipmentCategory:
+    properties:
+      children:
+        items:
+          $ref: '#/definitions/entity.EquipmentCategory'
+        type: array
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_by:
+        type: string
+      icon_url:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      parent:
+        allOf:
+        - $ref: '#/definitions/entity.EquipmentCategory'
+        description: Relations
+      parent_id:
+        type: string
+      slug:
+        type: string
+      sort_order:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.EquipmentCondition:
+    enum:
+    - new
+    - good
+    - fair
+    - worn
+    type: string
+    x-enum-varnames:
+    - EquipmentConditionNew
+    - EquipmentConditionGood
+    - EquipmentConditionFair
+    - EquipmentConditionWorn
+  entity.EquipmentMaintenance:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      end_date:
+        type: string
+      equipment:
+        allOf:
+        - $ref: '#/definitions/entity.Equipment'
+        description: Relations
+      equipment_id:
+        type: string
+      id:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+      start_date:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.EquipmentPhoto:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      equipment:
+        allOf:
+        - $ref: '#/definitions/entity.Equipment'
+        description: Relations
+      equipment_id:
+        type: string
+      id:
+        type: string
+      is_primary:
+        type: boolean
+      photo_url:
+        type: string
+      sort_order:
+        type: integer
+      thumbnail_url:
+        type: string
+    type: object
+  entity.EquipmentPricing:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      equipment:
+        allOf:
+        - $ref: '#/definitions/entity.Equipment'
+        description: Relations
+      equipment_id:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      max_days:
+        type: integer
+      min_days:
+        type: integer
+      price_per_day:
+        type: number
+      pricing_type:
+        $ref: '#/definitions/entity.PricingType'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.EquipmentStatus:
+    enum:
+    - available
+    - reserved
+    - rented
+    - maintenance
+    - damaged
+    - retired
+    type: string
+    x-enum-varnames:
+    - EquipmentStatusAvailable
+    - EquipmentStatusReserved
+    - EquipmentStatusRented
+    - EquipmentStatusMaintenance
+    - EquipmentStatusDamaged
+    - EquipmentStatusRetired
+  entity.InventoryReservation:
+    properties:
+      activated_at:
+        type: string
+      cancellation_reason:
+        type: string
+      cancelled_at:
+        type: string
+      completed_at:
+        type: string
+      confirmed_at:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      end_date:
+        type: string
+      equipment:
+        allOf:
+        - $ref: '#/definitions/entity.Equipment'
+        description: Relations
+      equipment_id:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      order_item:
+        $ref: '#/definitions/entity.OrderItem'
+      order_item_id:
+        type: string
+      quantity:
+        type: integer
+      start_date:
+        type: string
+      status:
+        $ref: '#/definitions/entity.ReservationStatus'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.Notification:
+    properties:
+      body:
+        type: string
+      channel:
+        $ref: '#/definitions/entity.NotificationChannel'
+      created_at:
+        type: string
+      created_by:
+        type: string
+      data:
+        type: string
+      id:
+        type: string
+      read_at:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: Relations
+      user_id:
+        type: string
+    type: object
+  entity.NotificationChannel:
+    enum:
+    - in_app
+    - email
+    - push
+    type: string
+    x-enum-varnames:
+    - NotificationChannelInApp
+    - NotificationChannelEmail
+    - NotificationChannelPush
+  entity.Order:
+    properties:
+      approved_at:
+        type: string
+      cancelled_at:
+        type: string
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_by:
+        type: string
+      delivery_address:
+        type: string
+      deposit_total:
+        type: number
+      deposits:
+        items:
+          $ref: '#/definitions/entity.Deposit'
+        type: array
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/entity.OrderItem'
+        type: array
+      notes:
+        type: string
+      order_number:
+        type: string
+      payment_deadline:
+        type: string
+      payments:
+        items:
+          $ref: '#/definitions/entity.Payment'
+        type: array
+      pickup_method:
+        $ref: '#/definitions/entity.PickupMethod'
+      rejected_at:
+        type: string
+      rejection_reason:
+        type: string
+      rental_days:
+        type: integer
+      rental_end_date:
+        type: string
+      rental_start_date:
+        type: string
+      renter:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: Relations
+      renter_id:
+        type: string
+      service_fee:
+        type: number
+      status:
+        $ref: '#/definitions/entity.OrderStatus'
+      status_history:
+        items:
+          $ref: '#/definitions/entity.OrderStatusHistory'
+        type: array
+      store:
+        $ref: '#/definitions/entity.Store'
+      store_id:
+        type: string
+      subtotal:
+        type: number
+      total_amount:
+        type: number
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.OrderItem:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deposit_per_unit:
+        type: number
+      deposit_subtotal:
+        type: number
+      equipment:
+        $ref: '#/definitions/entity.Equipment'
+      equipment_id:
+        type: string
+      id:
+        type: string
+      order:
+        allOf:
+        - $ref: '#/definitions/entity.Order'
+        description: Relations
+      order_id:
+        type: string
+      price_per_day:
+        type: number
+      quantity:
+        type: integer
+      rental_days:
+        type: integer
+      reservation:
+        $ref: '#/definitions/entity.InventoryReservation'
+      reservation_id:
+        type: string
+      subtotal:
+        type: number
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.OrderStatus:
+    enum:
+    - pending_payment
+    - paid
+    - approved
+    - rejected
+    - active
+    - completed
+    - cancelled
+    - expired
+    type: string
+    x-enum-varnames:
+    - OrderStatusPendingPayment
+    - OrderStatusPaid
+    - OrderStatusApproved
+    - OrderStatusRejected
+    - OrderStatusActive
+    - OrderStatusCompleted
+    - OrderStatusCancelled
+    - OrderStatusExpired
+  entity.OrderStatusHistory:
+    properties:
+      changed_by:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      from_status:
+        type: string
+      id:
+        type: string
+      metadata:
+        type: string
+      order:
+        allOf:
+        - $ref: '#/definitions/entity.Order'
+        description: Relations
+      order_id:
+        type: string
+      reason:
+        type: string
+      to_status:
+        type: string
+    type: object
+  entity.Payment:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      created_by:
+        type: string
+      expired_at:
+        type: string
+      id:
+        type: string
+      method:
+        type: string
+      midtrans_order_id:
+        type: string
+      midtrans_payment_type:
+        type: string
+      midtrans_redirect_url:
+        type: string
+      midtrans_snap_token:
+        type: string
+      midtrans_transaction_id:
+        type: string
+      order:
+        allOf:
+        - $ref: '#/definitions/entity.Order'
+        description: Relations
+      order_id:
+        type: string
+      paid_at:
+        type: string
+      payment_type:
+        $ref: '#/definitions/entity.PaymentType'
+      raw_callback:
+        type: string
+      refunds:
+        items:
+          $ref: '#/definitions/entity.Refund'
+        type: array
+      status:
+        $ref: '#/definitions/entity.PaymentStatus'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.PaymentStatus:
+    enum:
+    - pending
+    - success
+    - failed
+    - expired
+    - refunded
+    type: string
+    x-enum-varnames:
+    - PaymentStatusPending
+    - PaymentStatusSuccess
+    - PaymentStatusFailed
+    - PaymentStatusExpired
+    - PaymentStatusRefunded
+  entity.PaymentType:
+    enum:
+    - rental
+    - deposit
+    type: string
+    x-enum-varnames:
+    - PaymentTypeRental
+    - PaymentTypeDeposit
+  entity.PickupMethod:
+    enum:
+    - pickup
+    - delivery
+    type: string
+    x-enum-varnames:
+    - PickupMethodPickup
+    - PickupMethodDelivery
+  entity.PricingType:
+    enum:
+    - daily
+    - weekly
+    - monthly
+    - custom
+    type: string
+    x-enum-varnames:
+    - PricingTypeDaily
+    - PricingTypeWeekly
+    - PricingTypeMonthly
+    - PricingTypeCustom
+  entity.Refund:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: string
+      midtrans_refund_id:
+        type: string
+      order:
+        $ref: '#/definitions/entity.Order'
+      order_id:
+        type: string
+      payment:
+        allOf:
+        - $ref: '#/definitions/entity.Payment'
+        description: Relations
+      payment_id:
+        type: string
+      processed_at:
+        type: string
+      reason:
+        type: string
+      status:
+        $ref: '#/definitions/entity.RefundStatus'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.RefundStatus:
+    enum:
+    - pending
+    - processing
+    - success
+    - failed
+    type: string
+    x-enum-varnames:
+    - RefundStatusPending
+    - RefundStatusProcessing
+    - RefundStatusSuccess
+    - RefundStatusFailed
+  entity.ReservationStatus:
+    enum:
+    - pending_payment
+    - confirmed
+    - active
+    - completed
+    - cancelled
+    - expired
+    type: string
+    x-enum-varnames:
+    - ReservationStatusPendingPayment
+    - ReservationStatusConfirmed
+    - ReservationStatusActive
+    - ReservationStatusCompleted
+    - ReservationStatusCancelled
+    - ReservationStatusExpired
+  entity.Review:
+    properties:
+      comment:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_by:
+        type: string
+      equipment:
+        $ref: '#/definitions/entity.Equipment'
+      equipment_id:
+        type: string
+      id:
+        type: string
+      order:
+        $ref: '#/definitions/entity.Order'
+      order_id:
+        type: string
+      owner_replied_at:
+        type: string
+      owner_reply:
+        type: string
+      rating:
+        type: integer
+      store:
+        $ref: '#/definitions/entity.Store'
+      store_id:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: Relations
+      user_id:
+        type: string
+    type: object
+  entity.Store:
+    properties:
+      address:
+        type: string
+      banner_url:
+        type: string
+      city:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_by:
+        type: string
+      description:
+        type: string
+      documents:
+        items:
+          $ref: '#/definitions/entity.StoreDocument'
+        type: array
+      email:
+        type: string
+      equipment:
+        items:
+          $ref: '#/definitions/entity.Equipment'
+        type: array
+      id:
+        type: string
+      latitude:
+        type: number
+      logo_url:
+        type: string
+      longitude:
+        type: number
+      name:
+        type: string
+      operating_hours:
+        items:
+          $ref: '#/definitions/entity.StoreOperatingHour'
+        type: array
+      orders:
+        items:
+          $ref: '#/definitions/entity.Order'
+        type: array
+      owner:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: Relations
+      owner_id:
+        type: string
+      phone:
+        type: string
+      photos:
+        items:
+          $ref: '#/definitions/entity.StorePhoto'
+        type: array
+      postal_code:
+        type: string
+      province:
+        type: string
+      rating_avg:
+        type: number
+      rating_count:
+        type: integer
+      slug:
+        type: string
+      status:
+        $ref: '#/definitions/entity.StoreStatus'
+      suspended_at:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      verified_at:
+        type: string
+    type: object
+  entity.StoreDocument:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      document_type:
+        $ref: '#/definitions/entity.DocumentType'
+      document_url:
+        type: string
+      id:
+        type: string
+      rejected_reason:
+        type: string
+      store:
+        allOf:
+        - $ref: '#/definitions/entity.Store'
+        description: Relations
+      store_id:
+        type: string
+      verified_at:
+        type: string
+    type: object
+  entity.StoreOperatingHour:
+    properties:
+      close_time:
+        description: HH:MM format
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      day_of_week:
+        $ref: '#/definitions/entity.DayOfWeek'
+      id:
+        type: string
+      is_closed:
+        type: boolean
+      open_time:
+        description: HH:MM format
+        type: string
+      store:
+        allOf:
+        - $ref: '#/definitions/entity.Store'
+        description: Relations
+      store_id:
+        type: string
+    type: object
+  entity.StorePhoto:
+    properties:
+      caption:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: string
+      is_primary:
+        type: boolean
+      photo_url:
+        type: string
+      sort_order:
+        type: integer
+      store:
+        allOf:
+        - $ref: '#/definitions/entity.Store'
+        description: Relations
+      store_id:
+        type: string
+      thumbnail_url:
+        type: string
+    type: object
+  entity.StoreStatus:
+    enum:
+    - pending_approval
+    - active
+    - suspended
+    - rejected
+    type: string
+    x-enum-varnames:
+    - StoreStatusPendingApproval
+    - StoreStatusActive
+    - StoreStatusSuspended
+    - StoreStatusRejected
+  entity.User:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_by:
+        type: string
+      email:
+        type: string
+      email_verified_at:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      notifications:
+        items:
+          $ref: '#/definitions/entity.Notification'
+        type: array
+      orders:
+        items:
+          $ref: '#/definitions/entity.Order'
+        type: array
+      phone:
+        type: string
+      provider:
+        type: string
+      reviews:
+        items:
+          $ref: '#/definitions/entity.Review'
+        type: array
+      role:
+        $ref: '#/definitions/entity.UserRole'
+      sessions:
+        items:
+          $ref: '#/definitions/entity.UserSession'
+        type: array
+      stores:
+        description: Relations
+        items:
+          $ref: '#/definitions/entity.Store'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  entity.UserRole:
+    enum:
+    - renter
+    - owner
+    - admin
+    type: string
+    x-enum-varnames:
+    - UserRoleRenter
+    - UserRoleOwner
+    - UserRoleAdmin
+  entity.UserSession:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: string
+      ip_address:
+        type: string
+      revoked_at:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: Relations
+      user_agent:
+        type: string
+      user_id:
+        type: string
+    type: object
+  request.AddStorePhotoRequest:
+    properties:
+      caption:
+        example: Storefront view
+        maxLength: 255
+        type: string
+      is_primary:
+        example: false
+        type: boolean
+      photo_url:
+        example: https://cdn.example.com/photo.jpg
+        maxLength: 500
+        type: string
+      sort_order:
+        example: 1
+        minimum: 0
+        type: integer
+    required:
+    - photo_url
+    type: object
+  request.ChangeEquipmentStatusRequest:
+    properties:
+      status:
+        enum:
+        - available
+        - reserved
+        - rented
+        - maintenance
+        - damaged
+        - retired
+        example: maintenance
+        type: string
+    required:
+    - status
+    type: object
+  request.CheckAvailabilityRequest:
+    properties:
+      end_date:
+        example: "2026-07-03"
+        type: string
+      quantity:
+        example: 1
+        minimum: 1
+        type: integer
+      start_date:
+        example: "2026-07-01"
+        type: string
+    required:
+    - end_date
+    - quantity
+    - start_date
+    type: object
+  request.CreateEquipmentRequest:
+    properties:
+      brand:
+        example: Eiger
+        maxLength: 100
+        type: string
+      category_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      condition:
+        enum:
+        - new
+        - good
+        - fair
+        - worn
+        example: new
+        type: string
+      deposit_amount:
+        example: 100000
+        minimum: 0
+        type: number
+      description:
+        example: Tenda dome kapasitas 4 orang
+        maxLength: 5000
+        type: string
+      max_rental_days:
+        example: 30
+        minimum: 1
+        type: integer
+      min_rental_days:
+        example: 1
+        minimum: 1
+        type: integer
+      name:
+        example: Tenda Dome 4P Eiger
+        maxLength: 200
+        minLength: 3
+        type: string
+      purchase_date:
+        example: "2025-01-15"
+        type: string
+      requires_deposit:
+        example: true
+        type: boolean
+      specifications:
+        type: string
+      total_stock:
+        example: 5
+        minimum: 1
+        type: integer
+      weight_grams:
+        type: integer
+    required:
+    - category_id
+    - name
+    - total_stock
+    type: object
+  request.CreateOrderRequest:
+    properties:
+      delivery_address:
+        maxLength: 500
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/request.OrderItemRequest'
+        minItems: 1
+        type: array
+      notes:
+        maxLength: 1000
+        type: string
+      pickup_method:
+        enum:
+        - pickup
+        - delivery
+        type: string
+      rental_end_date:
+        example: "2026-07-03"
+        type: string
+      rental_start_date:
+        example: "2026-07-01"
+        type: string
+      store_id:
+        type: string
+    required:
+    - items
+    - pickup_method
+    - rental_end_date
+    - rental_start_date
+    - store_id
+    type: object
+  request.CreateStoreRequest:
+    properties:
+      address:
+        example: Jl. Raya Dago No. 123
+        maxLength: 500
+        minLength: 10
+        type: string
+      city:
+        example: Bandung
+        maxLength: 100
+        type: string
+      description:
+        example: Premium outdoor equipment rental
+        maxLength: 5000
+        type: string
+      email:
+        example: store@example.com
+        maxLength: 255
+        type: string
+      latitude:
+        example: -6.8845
+        type: number
+      longitude:
+        example: 107.6145
+        type: number
+      name:
+        example: Outdoor Gear Bandung
+        maxLength: 100
+        minLength: 3
+        type: string
+      phone:
+        example: "08123456789"
+        maxLength: 20
+        minLength: 10
+        type: string
+      postal_code:
+        example: "40135"
+        maxLength: 10
+        type: string
+      province:
+        example: Jawa Barat
+        maxLength: 100
+        type: string
+    required:
+    - address
+    - city
+    - email
+    - name
+    - phone
+    - province
+    type: object
+  request.ForgotPasswordRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+    required:
+    - email
+    type: object
+  request.GoogleLoginRequest:
+    properties:
+      id_token:
+        example: eyJhbGciOiJSUzI1NiIs...
+        type: string
+    required:
+    - id_token
+    type: object
+  request.InitiatePaymentRequest:
+    properties:
+      order_id:
+        type: string
+    required:
+    - order_id
+    type: object
+  request.LoginRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: securePass123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  request.OperatingHourItem:
+    properties:
+      close_time:
+        example: "17:00"
+        type: string
+      day_of_week:
+        example: 1
+        maximum: 7
+        minimum: 1
+        type: integer
+      is_closed:
+        example: false
+        type: boolean
+      open_time:
+        example: "08:00"
+        type: string
+    required:
+    - close_time
+    - day_of_week
+    - open_time
+    type: object
+  request.OrderItemRequest:
+    properties:
+      equipment_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - equipment_id
+    - quantity
+    type: object
+  request.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        example: a1b2c3d4e5f6...
+        type: string
+    required:
+    - refresh_token
+    type: object
+  request.RegisterRequest:
+    properties:
+      email:
+        example: john@example.com
+        maxLength: 255
+        type: string
+      full_name:
+        example: John Doe
+        maxLength: 100
+        minLength: 2
+        type: string
+      password:
+        example: securePass123
+        maxLength: 72
+        minLength: 8
+        type: string
+      phone:
+        example: "08123456789"
+        maxLength: 20
+        minLength: 10
+        type: string
+      role:
+        enum:
+        - renter
+        - owner
+        example: renter
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    type: object
+  request.RejectOrderRequest:
+    properties:
+      reason:
+        maxLength: 500
+        minLength: 5
+        type: string
+    required:
+    - reason
+    type: object
+  request.ResetPasswordRequest:
+    properties:
+      new_password:
+        example: newSecurePass123
+        maxLength: 72
+        minLength: 8
+        type: string
+      token:
+        example: a1b2c3d4e5f6...
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
+  request.SetOperatingHoursRequest:
+    properties:
+      hours:
+        items:
+          $ref: '#/definitions/request.OperatingHourItem'
+        type: array
+    required:
+    - hours
+    type: object
+  request.SuspendStoreRequest:
+    properties:
+      reason:
+        example: Violation of terms of service
+        maxLength: 500
+        minLength: 5
+        type: string
+    required:
+    - reason
+    type: object
+  request.UpdateEquipmentRequest:
+    properties:
+      brand:
+        maxLength: 100
+        type: string
+      condition:
+        enum:
+        - new
+        - good
+        - fair
+        - worn
+        type: string
+      deposit_amount:
+        minimum: 0
+        type: number
+      description:
+        maxLength: 5000
+        type: string
+      is_active:
+        type: boolean
+      max_rental_days:
+        minimum: 1
+        type: integer
+      min_rental_days:
+        minimum: 1
+        type: integer
+      name:
+        example: Updated Equipment Name
+        maxLength: 200
+        minLength: 3
+        type: string
+      purchase_date:
+        type: string
+      total_stock:
+        minimum: 0
+        type: integer
+    type: object
+  request.UpdateStoreRequest:
+    properties:
+      address:
+        maxLength: 500
+        minLength: 10
+        type: string
+      banner_url:
+        maxLength: 500
+        type: string
+      city:
+        maxLength: 100
+        type: string
+      description:
+        maxLength: 5000
+        type: string
+      email:
+        maxLength: 255
+        type: string
+      latitude:
+        type: number
+      logo_url:
+        maxLength: 500
+        type: string
+      longitude:
+        type: number
+      name:
+        example: Updated Store Name
+        maxLength: 100
+        minLength: 3
+        type: string
+      phone:
+        maxLength: 20
+        minLength: 10
+        type: string
+      postal_code:
+        maxLength: 10
+        type: string
+      province:
+        maxLength: 100
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      details: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      meta: {}
+      success:
+        type: boolean
+    type: object
+  usecase.AuthOutput:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+      user:
+        $ref: '#/definitions/entity.User'
+    type: object
+  usecase.AvailabilityOutput:
+    properties:
+      available:
+        type: boolean
+      available_qty:
+        type: integer
+      peak_usage:
+        type: integer
+      status:
+        type: string
+      total_stock:
+        type: integer
+    type: object
+  usecase.ForgotPasswordOutput:
+    properties:
+      message:
+        type: string
+      reset_token:
+        description: In production, token is sent via email. Exposed here for dev/testing
+          only.
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: Outdoor Equipment Rental Marketplace API
   title: Rent Outdoor API
   version: "1.0"
-paths: {}
+paths:
+  /admin/stores/{id}/approve:
+    patch:
+      description: Approve a pending store and set it to active.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Approve a store (Admin)
+      tags:
+      - Store Admin
+  /admin/stores/{id}/reactivate:
+    patch:
+      description: Reactivate a previously suspended store.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Reactivate a suspended store (Admin)
+      tags:
+      - Store Admin
+  /admin/stores/{id}/suspend:
+    patch:
+      consumes:
+      - application/json
+      description: Suspend an active store with a reason.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Suspend reason
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.SuspendStoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Suspend a store (Admin)
+      tags:
+      - Store Admin
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send a password reset token for the given email. Does not reveal
+        whether email exists.
+      parameters:
+      - description: Forgot password payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/usecase.ForgotPasswordOutput'
+              type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Request password reset
+      tags:
+      - Auth
+  /auth/google:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate with Google ID token. Creates account if first login.
+      parameters:
+      - description: Google login payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.GoogleLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/usecase.AuthOutput'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Login with Google
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate with email/password credentials. Returns JWT access
+        token and refresh token.
+      parameters:
+      - description: Login payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/usecase.AuthOutput'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Login with email and password
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      description: Revoke the current session's refresh token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout and revoke session
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Exchange a valid refresh token for a new access token and refresh
+        token pair (rotation).
+      parameters:
+      - description: Refresh token payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/usecase.AuthOutput'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 'Create a new account with email and password. Roles: renter, owner.'
+      parameters:
+      - description: Register payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/usecase.AuthOutput'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset password using a valid reset token.
+      parameters:
+      - description: Reset password payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Reset password
+      tags:
+      - Auth
+  /equipment:
+    get:
+      description: List equipment with optional filters by store, category, status,
+        and search.
+      parameters:
+      - description: Store ID
+        in: query
+        name: store_id
+        type: string
+      - description: Category ID
+        in: query
+        name: category_id
+        type: string
+      - description: Filter by status
+        enum:
+        - available
+        - reserved
+        - rented
+        - maintenance
+        - damaged
+        - retired
+        in: query
+        name: status
+        type: string
+      - description: Search keyword
+        in: query
+        name: search
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List equipment
+      tags:
+      - Equipment
+    post:
+      consumes:
+      - application/json
+      description: Create a new equipment item for a store. Only store owners can
+        create.
+      parameters:
+      - description: Equipment payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateEquipmentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create new equipment
+      tags:
+      - Equipment
+  /equipment/{id}:
+    delete:
+      description: Soft delete equipment. Only the store owner can delete.
+      parameters:
+      - description: Equipment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete equipment (soft)
+      tags:
+      - Equipment
+    get:
+      description: Get detailed equipment information including photos, pricing, and
+        category.
+      parameters:
+      - description: Equipment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get equipment by ID
+      tags:
+      - Equipment
+    put:
+      consumes:
+      - application/json
+      description: Update equipment details. Only the store owner can update.
+      parameters:
+      - description: Equipment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateEquipmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update equipment
+      tags:
+      - Equipment
+  /equipment/{id}/availability:
+    post:
+      consumes:
+      - application/json
+      description: Check if equipment is available for rental in the given date range
+        and quantity.
+      parameters:
+      - description: Equipment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Availability check
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.CheckAvailabilityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/usecase.AvailabilityOutput'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Check equipment availability for date range
+      tags:
+      - Equipment
+  /equipment/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Change equipment status (available, reserved, rented, maintenance,
+        damaged, retired). Validates allowed transitions.
+      parameters:
+      - description: Equipment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New status
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangeEquipmentStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change equipment status
+      tags:
+      - Equipment
+  /health:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Health check
+      tags:
+      - Health
+  /payments:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Payment payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.InitiatePaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Initiate payment for an order
+      tags:
+      - Payments
+  /payments/{id}/status:
+    get:
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Check payment status
+      tags:
+      - Payments
+  /payments/callback:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Handle Midtrans payment callback
+      tags:
+      - Payments
+  /rentals:
+    get:
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: List renter's orders
+      tags:
+      - Rentals
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a new rental order
+      tags:
+      - Rentals
+  /rentals/{id}:
+    get:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get order details
+      tags:
+      - Rentals
+  /rentals/{id}/approve:
+    patch:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Approve an order (store owner)
+      tags:
+      - Rentals
+  /rentals/{id}/cancel:
+    patch:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Cancel an order
+      tags:
+      - Rentals
+  /rentals/{id}/complete:
+    patch:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Mark order as completed (equipment returned)
+      tags:
+      - Rentals
+  /rentals/{id}/reject:
+    patch:
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Rejection reason
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.RejectOrderRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Reject an order (store owner)
+      tags:
+      - Rentals
+  /rentals/incoming:
+    get:
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: List store's incoming orders
+      tags:
+      - Rentals
+  /stores:
+    get:
+      description: List active stores with optional filters.
+      parameters:
+      - description: Filter by city
+        in: query
+        name: city
+        type: string
+      - description: Filter by province
+        in: query
+        name: province
+        type: string
+      - description: Search by name or city
+        in: query
+        name: search
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.Store'
+                  type: array
+              type: object
+      summary: List stores
+      tags:
+      - Store
+    post:
+      consumes:
+      - application/json
+      description: Creates a new store for the authenticated owner. One store per
+        owner.
+      parameters:
+      - description: Create store payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateStoreRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Store'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new store
+      tags:
+      - Store
+  /stores/{id}:
+    get:
+      description: Get detailed store information including photos and operating hours.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Store'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get store by ID
+      tags:
+      - Store
+    put:
+      consumes:
+      - application/json
+      description: Update store information. Only the store owner can update.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update store payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateStoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Store'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update store
+      tags:
+      - Store
+  /stores/{id}/operating-hours:
+    get:
+      description: Get the operating hours for a store.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.StoreOperatingHour'
+                  type: array
+              type: object
+      summary: Get store operating hours
+      tags:
+      - Store
+    put:
+      consumes:
+      - application/json
+      description: Set operating hours for each day of the week. Replaces existing
+        hours.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Operating hours payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.SetOperatingHoursRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Set store operating hours
+      tags:
+      - Store
+  /stores/{id}/photos:
+    post:
+      consumes:
+      - application/json
+      description: Upload a photo for the store. Only the store owner can add photos.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Photo payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.AddStorePhotoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.StorePhoto'
+              type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add store photo
+      tags:
+      - Store Photos
+  /stores/{id}/photos/{photoId}:
+    delete:
+      description: Remove a photo from the store. Only the store owner can remove.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Photo ID
+        in: path
+        name: photoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove store photo
+      tags:
+      - Store Photos
+  /stores/{id}/photos/{photoId}/primary:
+    patch:
+      description: Set a photo as the primary/cover photo for the store.
+      parameters:
+      - description: Store ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Photo ID
+        in: path
+        name: photoId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Set primary store photo
+      tags:
+      - Store Photos
+  /stores/me:
+    get:
+      description: Get the authenticated owner's store.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Store'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get my store
+      tags:
+      - Store
+  /stores/slug/{slug}:
+    get:
+      description: Get store by its URL-friendly slug.
+      parameters:
+      - description: Store slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.Store'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get store by slug
+      tags:
+      - Store
 securityDefinitions:
   BearerAuth:
     in: header

@@ -11,7 +11,7 @@ type BaseModel struct {
 	ID        string         `gorm:"type:char(36);primaryKey" json:"id"`
 	CreatedAt time.Time      `gorm:"not null;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time      `gorm:"not null;autoUpdateTime" json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty" swaggerignore:"true"`
 	CreatedBy *string        `gorm:"type:char(36)" json:"created_by,omitempty"`
 	UpdatedBy *string        `gorm:"type:char(36)" json:"updated_by,omitempty"`
 	DeletedBy *string        `gorm:"type:char(36)" json:"deleted_by,omitempty"`
