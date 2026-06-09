@@ -10,6 +10,11 @@ type RegisterRequest struct {
 	Role     string `json:"role" binding:"omitempty,oneof=renter owner" example:"renter"`
 }
 
+type RegisterInvitationRequest struct {
+	FullName string `json:"full_name" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+}
+
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email" example:"john@example.com"`
 	Password string `json:"password" binding:"required" example:"securePass123"`

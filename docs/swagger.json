@@ -3801,10 +3801,14 @@
         "request.RegisterInvitationRequest": {
             "type": "object",
             "required": [
-                "email"
+                "email",
+                "full_name"
             ],
             "properties": {
                 "email": {
+                    "type": "string"
+                },
+                "full_name": {
                     "type": "string"
                 }
             }

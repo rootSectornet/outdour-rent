@@ -1250,8 +1250,11 @@ definitions:
     properties:
       email:
         type: string
+      full_name:
+        type: string
     required:
     - email
+    - full_name
     type: object
   request.RegisterRequest:
     properties:

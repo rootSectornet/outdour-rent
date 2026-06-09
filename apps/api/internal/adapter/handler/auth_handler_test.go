@@ -15,17 +15,22 @@ import (
 // --- Mock AuthUsecase ---
 
 type mockAuthUsecase struct {
-	registerFn       func(ctx context.Context, input *usecase.RegisterInput) (*usecase.AuthOutput, error)
-	loginFn          func(ctx context.Context, input *usecase.LoginInput) (*usecase.AuthOutput, error)
-	googleLoginFn    func(ctx context.Context, input *usecase.GoogleLoginInput) (*usecase.AuthOutput, error)
-	refreshTokenFn   func(ctx context.Context, refreshToken string) (*usecase.AuthOutput, error)
-	forgotPasswordFn func(ctx context.Context, email string) (*usecase.ForgotPasswordOutput, error)
-	resetPasswordFn  func(ctx context.Context, token, newPassword string) error
-	logoutFn         func(ctx context.Context, sessionID string) error
+	registerFn           func(ctx context.Context, input *usecase.RegisterInput) (*usecase.AuthOutput, error)
+	registerInvitationFn func(ctx context.Context, input *usecase.RegisterInvitationInput) error
+	loginFn              func(ctx context.Context, input *usecase.LoginInput) (*usecase.AuthOutput, error)
+	googleLoginFn        func(ctx context.Context, input *usecase.GoogleLoginInput) (*usecase.AuthOutput, error)
+	refreshTokenFn       func(ctx context.Context, refreshToken string) (*usecase.AuthOutput, error)
+	forgotPasswordFn     func(ctx context.Context, email string) (*usecase.ForgotPasswordOutput, error)
+	resetPasswordFn      func(ctx context.Context, token, newPassword string) error
+	logoutFn             func(ctx context.Context, sessionID string) error
 }
 
 func (m *mockAuthUsecase) Register(ctx context.Context, input *usecase.RegisterInput) (*usecase.AuthOutput, error) {
 	return m.registerFn(ctx, input)
+}
+
+func (m *mockAuthUsecase) RegisterInvitation(ctx context.Context, input *usecase.RegisterInvitationInput) error {
+	return m.registerInvitationFn(ctx, input)
 }
 
 func (m *mockAuthUsecase) Login(ctx context.Context, input *usecase.LoginInput) (*usecase.AuthOutput, error) {

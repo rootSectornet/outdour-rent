@@ -18,13 +18,15 @@ type Config struct {
 	S3       S3Config
 	Midtrans MidtransConfig
 	Google   GoogleConfig
+	Email    SMTPConfig
 }
 
 type AppConfig struct {
-	Name string
-	Env  string
-	Port string
-	URL  string
+	Name        string
+	Env         string
+	Port        string
+	URL         string
+	FrontEndURL string
 }
 
 type DBConfig struct {
@@ -72,6 +74,14 @@ type GoogleConfig struct {
 	ClientSecret string
 }
 
+type SMTPConfig struct {
+	Host string
+	Port string
+	User string
+	Pass string
+	From string
+}
+
 // Load reads configuration from environment variables and .env file.
 func Load() (*Config, error) {
 	readEnvFile()
@@ -79,10 +89,11 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		App: AppConfig{
-			Name: getStringOrDefault("APP_NAME", "rent-outdoor-api"),
-			Env:  getStringOrDefault("APP_ENV", "development"),
-			Port: getStringOrDefault("APP_PORT", "8080"),
-			URL:  getStringOrDefault("APP_URL", "http://localhost:8080"),
+			Name:        getStringOrDefault("APP_NAME", "rent-outdoor-api"),
+			Env:         getStringOrDefault("APP_ENV", "development"),
+			Port:        getStringOrDefault("APP_PORT", "8080"),
+			URL:         getStringOrDefault("APP_URL", "http://localhost:8080"),
+			FrontEndURL: getStringOrDefault("FRONT_END_URL", "http://localhost:8080"),
 		},
 		DB: DBConfig{
 			Host:         getStringOrDefault("DB_HOST", "localhost"),
@@ -122,6 +133,13 @@ func Load() (*Config, error) {
 		Google: GoogleConfig{
 			ClientID:     viper.GetString("GOOGLE_CLIENT_ID"),
 			ClientSecret: viper.GetString("GOOGLE_CLIENT_SECRET"),
+		},
+		Email: SMTPConfig{
+			Host: viper.GetString("SMTP_HOST"),
+			Port: viper.GetString("SMTP_PORT"),
+			User: viper.GetString("SMTP_USER"),
+			Pass: viper.GetString("SMTP_PASS"),
+			From: viper.GetString("SMTP_FROM"),
 		},
 	}
 

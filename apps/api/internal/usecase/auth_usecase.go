@@ -9,6 +9,7 @@ import (
 // AuthUsecase defines the interface for authentication business logic.
 type AuthUsecase interface {
 	Register(ctx context.Context, input *RegisterInput) (*AuthOutput, error)
+	RegisterInvitation(ctx context.Context, input *RegisterInvitationInput) error
 	Login(ctx context.Context, input *LoginInput) (*AuthOutput, error)
 	GoogleLogin(ctx context.Context, input *GoogleLoginInput) (*AuthOutput, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*AuthOutput, error)
@@ -23,6 +24,11 @@ type RegisterInput struct {
 	FullName string
 	Phone    string
 	Role     entity.UserRole
+}
+
+type RegisterInvitationInput struct {
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
 }
 
 type LoginInput struct {

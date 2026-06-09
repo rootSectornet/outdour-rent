@@ -62,6 +62,39 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "registration successful", result)
 }
 
+// RegisterInvitation godoc
+// @Summary Invite a renter
+// @Description Create a renter account and send an invitation email to set password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body request.RegisterInvitationRequest true "Invitation payload"
+// @Success 201 {object} response.Response
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 409 {object} response.ErrorResponse
+// @Failure 422 {object} response.ErrorResponse
+// @Router /auth/invitation [post]
+func (h *AuthHandler) RegisterInvitation(c *gin.Context) {
+	var req request.RegisterInvitationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ValidationError(c, err)
+		return
+	}
+
+	input := &usecase.RegisterInvitationInput{
+		FullName: req.FullName,
+		Email:    req.Email,
+	}
+
+	err := h.authUC.RegisterInvitation(c.Request.Context(), input)
+	if err != nil {
+		response.HandleError(c, err)
+		return
+	}
+
+	response.Success(c, http.StatusCreated, "invitation sent successfully", nil)
+}
+
 // Login godoc
 // @Summary Login with email and password
 // @Description Authenticate with email/password credentials. Returns JWT access token and refresh token.

@@ -30,14 +30,14 @@ type Container struct {
 	EquipmentRepo     repository.EquipmentRepository
 	CategoryRepo      repository.CategoryRepository
 	ReservationRepo   repository.ReservationRepository
-	OrderRepo        repository.OrderRepository
-	OrderItemRepo    repository.OrderItemRepository
-	PaymentRepo      repository.PaymentRepository
-	DepositRepo      repository.DepositRepository
-	RefundRepo       repository.RefundRepository
-	ReviewRepo       repository.ReviewRepository
-	NotificationRepo repository.NotificationRepository
-	MaintenanceRepo  repository.MaintenanceRepository
+	OrderRepo         repository.OrderRepository
+	OrderItemRepo     repository.OrderItemRepository
+	PaymentRepo       repository.PaymentRepository
+	DepositRepo       repository.DepositRepository
+	RefundRepo        repository.RefundRepository
+	ReviewRepo        repository.ReviewRepository
+	NotificationRepo  repository.NotificationRepository
+	MaintenanceRepo   repository.MaintenanceRepository
 
 	// Transaction Manager
 	TxManager repository.TransactionManager
@@ -106,6 +106,7 @@ func (c *Container) initUsecases() {
 		c.UserRepo,
 		c.SessionRepo,
 		c.PasswordResetRepo,
+		*c.Config,
 		c.Config.JWT,
 		googleVerifier,
 	)

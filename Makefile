@@ -1,5 +1,8 @@
 .PHONY: dev dev-api dev-web migrate migrate-down seed
 
+run-dev:
+	cd apps/api && go run cmd/server/main.go
+
 dev:
 	docker compose -f deployments/docker-compose.yml -f deployments/docker-compose.dev.yml up
 

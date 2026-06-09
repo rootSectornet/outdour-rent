@@ -14,6 +14,7 @@ import (
 	"github.com/rentoutdoor/api/internal/infrastructure/config"
 	"github.com/rentoutdoor/api/internal/repository"
 	"github.com/rentoutdoor/api/internal/usecase"
+	"github.com/rentoutdoor/api/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -22,6 +23,7 @@ type authUsecase struct {
 	userRepo     repository.UserRepository
 	sessionRepo  repository.SessionRepository
 	resetRepo    repository.PasswordResetRepository
+	cfg          config.Config
 	jwtCfg       config.JWTConfig
 	googleVerify GoogleTokenVerifier
 }
@@ -45,6 +47,7 @@ func NewAuthUsecase(
 	userRepo repository.UserRepository,
 	sessionRepo repository.SessionRepository,
 	resetRepo repository.PasswordResetRepository,
+	cfg config.Config,
 	jwtCfg config.JWTConfig,
 	googleVerify GoogleTokenVerifier,
 ) usecase.AuthUsecase {
@@ -52,6 +55,7 @@ func NewAuthUsecase(
 		userRepo:     userRepo,
 		sessionRepo:  sessionRepo,
 		resetRepo:    resetRepo,
+		cfg:          cfg,
 		jwtCfg:       jwtCfg,
 		googleVerify: googleVerify,
 	}
@@ -72,6 +76,7 @@ func (uc *authUsecase) Register(ctx context.Context, input *usecase.RegisterInpu
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
+	passwordHash := string(hashedPassword)
 
 	// Validate role
 	role := input.Role
@@ -84,7 +89,7 @@ func (uc *authUsecase) Register(ctx context.Context, input *usecase.RegisterInpu
 
 	user := &entity.User{
 		Email:        input.Email,
-		PasswordHash: string(hashedPassword),
+		PasswordHash: &passwordHash,
 		FullName:     input.FullName,
 		Role:         role,
 		IsActive:     true,
@@ -101,6 +106,64 @@ func (uc *authUsecase) Register(ctx context.Context, input *usecase.RegisterInpu
 	return uc.generateTokenPair(ctx, user, "")
 }
 
+func (uc *authUsecase) RegisterInvitation(ctx context.Context, input *usecase.RegisterInvitationInput) error {
+	existing, err := uc.userRepo.FindByEmail(ctx, input.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return fmt.Errorf("failed to check existing user: %w", err)
+	}
+
+	if existing != nil {
+		return fmt.Errorf("%w: email already registered", usecase.ErrConflict)
+	}
+
+	user := &entity.User{
+		Email:    input.Email,
+		FullName: input.FullName,
+		Role:     entity.UserRoleRenter,
+		IsActive: true,
+		Provider: "local",
+	}
+
+	if err := uc.userRepo.Create(ctx, user); err != nil {
+		return fmt.Errorf("failed to create user: %w", err)
+	}
+
+	rawToken, tokenHash, err := utils.GenerateResetToken()
+	if err != nil {
+		return fmt.Errorf("failed to generate token: %w", err)
+	}
+
+	reset := &entity.PasswordReset{
+		UserID:    user.ID,
+		TokenHash: tokenHash,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	}
+
+	if err := uc.resetRepo.Create(ctx, reset); err != nil {
+		return fmt.Errorf("failed to create reset token: %w", err)
+	}
+
+	resetLink := fmt.Sprintf("%s/reset-password?token=%s", uc.cfg.App.FrontEndURL, rawToken)
+
+	body := fmt.Sprintf(`
+Welcome!
+
+Your account has been created.
+
+Please set your password:
+
+%s
+
+This link expires in 24 hours.
+`, resetLink)
+
+	if err := utils.Send(ctx, user.Email, "Set Your Password", body, uc.cfg.Email); err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	return nil
+}
+
 func (uc *authUsecase) Login(ctx context.Context, input *usecase.LoginInput) (*usecase.AuthOutput, error) {
 	user, err := uc.userRepo.FindByEmail(ctx, input.Email)
 	if err != nil {
@@ -114,11 +177,11 @@ func (uc *authUsecase) Login(ctx context.Context, input *usecase.LoginInput) (*u
 		return nil, fmt.Errorf("%w: account is deactivated", usecase.ErrForbidden)
 	}
 
-	if user.PasswordHash == "" {
+	if user.PasswordHash == nil {
 		return nil, fmt.Errorf("%w: please login with Google", usecase.ErrUnauthorized)
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(input.Password)); err != nil {
 		return nil, fmt.Errorf("%w: invalid credentials", usecase.ErrUnauthorized)
 	}
 
@@ -302,7 +365,8 @@ func (uc *authUsecase) ResetPassword(ctx context.Context, token, newPassword str
 		return fmt.Errorf("failed to find user: %w", err)
 	}
 
-	user.PasswordHash = string(hashedPassword)
+	hash := string(hashedPassword)
+	user.PasswordHash = &hash
 	if err := uc.userRepo.Update(ctx, user); err != nil {
 		return fmt.Errorf("failed to update password: %w", err)
 	}

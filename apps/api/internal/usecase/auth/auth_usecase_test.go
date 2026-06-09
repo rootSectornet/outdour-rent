@@ -202,6 +202,9 @@ func (m *mockGoogleVerifier) Verify(_ context.Context, _ string) (*auth.GoogleCl
 }
 
 // --- Helpers ---
+func newTestConfig() config.Config {
+	return config.Config{}
+}
 
 func newTestJWTConfig() config.JWTConfig {
 	return config.JWTConfig{
@@ -223,20 +226,21 @@ func setupAuthUsecase(googleClaims *auth.GoogleClaims, googleErr error) (
 	resetRepo := newMockPasswordResetRepo()
 	googleVerifier := &mockGoogleVerifier{claims: googleClaims, err: googleErr}
 
-	uc := auth.NewAuthUsecase(userRepo, sessionRepo, resetRepo, newTestJWTConfig(), googleVerifier)
+	uc := auth.NewAuthUsecase(userRepo, sessionRepo, resetRepo, newTestConfig(), newTestJWTConfig(), googleVerifier)
 	return uc, userRepo, sessionRepo, resetRepo
 }
 
 func createTestUser(userRepo *mockUserRepo, email, password string, role entity.UserRole) *entity.User {
 	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashed := string(hash)
 	user := &entity.User{
-		BaseModel: entity.BaseModel{ID: "user-123"},
-		Email:     email,
-		PasswordHash: string(hash),
-		FullName:  "Test User",
-		Role:      role,
-		IsActive:  true,
-		Provider:  "local",
+		BaseModel:    entity.BaseModel{ID: "user-123"},
+		Email:        email,
+		PasswordHash: &hashed,
+		FullName:     "Test User",
+		Role:         role,
+		IsActive:     true,
+		Provider:     "local",
 	}
 	userRepo.users[user.ID] = user
 	userRepo.byEmail[user.Email] = user

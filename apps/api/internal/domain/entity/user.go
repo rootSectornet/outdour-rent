@@ -5,7 +5,7 @@ import "time"
 type User struct {
 	BaseModel
 	Email           string     `gorm:"type:varchar(255);not null;uniqueIndex:idx_users_email,where:deleted_at IS NULL" json:"email"`
-	PasswordHash    string     `gorm:"type:varchar(255)" json:"-"`
+	PasswordHash    *string    `gorm:"type:varchar(255)" json:"-"`
 	FullName        string     `gorm:"type:varchar(100);not null" json:"full_name"`
 	Phone           *string    `gorm:"type:varchar(20)" json:"phone,omitempty"`
 	AvatarURL       *string    `gorm:"type:varchar(500)" json:"avatar_url,omitempty"`

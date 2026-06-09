@@ -46,6 +46,7 @@ func setupAuthRoutes(rg *gin.RouterGroup, c *container.Container) {
 	auth := rg.Group("/auth")
 	{
 		auth.POST("/register", c.AuthHandler.Register)
+		auth.POST("/invitation", c.AuthHandler.RegisterInvitation)
 		auth.POST("/login", c.AuthHandler.Login)
 		auth.POST("/google", c.AuthHandler.GoogleLogin)
 		auth.POST("/refresh", c.AuthHandler.RefreshToken)
